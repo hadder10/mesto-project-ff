@@ -8,6 +8,6 @@ https://github.com/Eioven/mesto-project-ff
 Одностраничный сайт, который позволяет делиться лучшими фотографиями
 
 <h3>Технологии</h3>
-HTML, CSS, JavaScript
+HTML, CSS, JavaScript.
 
 
