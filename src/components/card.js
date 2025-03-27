@@ -1,5 +1,6 @@
-import {cardTemplate, cardsContainer} from "../index.js";
-import {openImagePopup} from "./popup.js";
+import {openImagePopup} from "../index.js";
+
+const cardTemplate = document.querySelector("#card-template").content;
 
 function createCard (cardContent, deleteCard, likeCard, openImagePopup) {
     const card = cardTemplate.querySelector(".card").cloneNode(true);
@@ -28,11 +29,4 @@ function likeCard(event) {
     event.target.closest(".card__like-button").classList.toggle('card__like-button_is-active');
 }
 
-function addCards (array){
-    array.forEach(function (cardContent){
-        const newCard = createCard(cardContent, deleteCard, likeCard, openImagePopup);
-        cardsContainer.append(newCard);
-    });
-}
-
-export { createCard, deleteCard, likeCard, addCards };
+export { createCard, deleteCard, likeCard };
