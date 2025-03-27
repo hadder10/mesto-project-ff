@@ -12,12 +12,12 @@ const editForm = document.forms["edit-profile"];
 const nameInput = editForm.elements.name;
 const jobInput = editForm.elements.description;
 
-const imagePopupImg = document.querySelector(".popup__image");
-const imagePopupDescription = document.querySelector(".popup__caption");
-
 const newCardForm = document.forms["new-place"];
 const cardLinkInput = newCardForm.elements.link;
 const cardNameInput = newCardForm.elements["place-name"];
+
+const imagePopupImg = document.querySelector(".popup__image");
+const imagePopupDescription = document.querySelector(".popup__caption");
 
 const editPopup = document.querySelector(".popup_type_edit");
 const newCardPopup = document.querySelector(".popup_type_new-card");

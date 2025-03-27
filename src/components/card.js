@@ -1,5 +1,3 @@
-import {openImagePopup} from "../index.js";
-
 const cardTemplate = document.querySelector("#card-template").content;
 
 function createCard (cardContent, deleteCard, likeCard, openImagePopup) {
