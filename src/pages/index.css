@@ -11,3 +11,20 @@
 @import url('../blocks/popup/_is-animated/popup_is-animated.css');
 @import url('../blocks/popup/_is-opened/popup_is-opened.css');
 
+.form__input-error {
+  color: red;
+  font-size: 12px;
+  min-height: 16px;
+  margin-bottom: 5px;
+  display: block;
+  visibility: hidden;
+}
+
+.form__input-error_active {
+  visibility: visible;
+}
+
+.form__input_type_error {
+  border-bottom: 2px solid red;
+}
+

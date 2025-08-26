@@ -2,6 +2,7 @@ import './pages/index.css';
 import { createCard, deleteCard, likeCard } from "./components/card.js";
 import { openPopup, closePopup, closePopupEvent } from "./components/popup.js";
 import {initialCards} from "./components/cards.js";
+import { validation, validationConfig } from "./components/validation.js";
 
 const cardsContainer = document.querySelector(".places__list");
 
@@ -89,6 +90,8 @@ function handleCardFormSubmit(evt) {
 }
 
 newCardForm.addEventListener('submit', handleCardFormSubmit);
+
+validation(validationConfig);
 
 
 
