@@ -2,6 +2,7 @@ import "./pages/index.css";
 import { createCard, deleteCard, likeCard } from "./components/card.js";
 import { openPopup, closePopup, closePopupEvent } from "./components/popup.js";
 import { initialCards } from "./components/cards.js";
+import avatarUrl from "./images/avatar.jpg";
 
 const cardsContainer = document.querySelector(".places__list");
 
@@ -192,8 +193,12 @@ function clearValidation(formElement, validationConfig) {
 
 enableValidation(validationConfig);
 
-// Экспорт старых имён, чтобы существующие импорты из components/validation.js продолжили работать
 export { enableValidation, clearValidation };
 export { createCard, deleteCard, likeCard };
 export { openPopup, closePopup, closePopupEvent };
 export { initialCards };
+
+const profileImageElement = document.querySelector(".profile__image");
+if (profileImageElement && avatarUrl) {
+  profileImageElement.style.backgroundImage = `url(${avatarUrl})`;
+}
