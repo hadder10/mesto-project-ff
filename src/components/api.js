@@ -7,7 +7,7 @@ const apiRoutes = {
 };
 
 const headers = {
-  Authorization: "a92cf4b1-7182-4dc0-b276-44fe3bf25f4e",
+  Authorization: `Bearer ${process.env.API_TOKEN || ""}`,
   "Content-Type": "application/json",
 };
 
