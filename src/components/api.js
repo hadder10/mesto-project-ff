@@ -7,9 +7,14 @@ const apiRoutes = {
 };
 
 const headers = {
-  Authorization: `Bearer ${process.env.API_TOKEN || ""}`,
+  Authorization: "cf42a0df-ae43-4b9c-81ff-a75ec02c0ae1",
   "Content-Type": "application/json",
 };
+
+// const headers = {
+//   Authorization: `Bearer ${process.env.API_TOKEN || ""}`,
+//   "Content-Type": "application/json",
+// };
 
 const checkData = (response) => {
   if (response.ok) {
