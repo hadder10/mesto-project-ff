@@ -1,7 +1,15 @@
 import "./pages/index.css";
 import { createCard, deleteCard, likeCard } from "./components/card.js";
 import { openPopup, closePopup, closePopupEvent } from "./components/popup.js";
-import { initialCards } from "./components/cards.js";
+import {
+  getCards,
+  postCard,
+  deleteCardApi,
+  getUser,
+  patchUser,
+  addLikeCard,
+  deleteLikeCard,
+} from "./components/api.js";
 import avatarUrl from "./images/avatar.jpg";
 import {
   validation,
@@ -33,19 +41,50 @@ const editProfileButton = document.querySelector(".profile__edit-button");
 const addCardButton = document.querySelector(".profile__add-button");
 const closePopupButtons = document.querySelectorAll(".popup__close");
 
+let currentUserId = null;
+
 function addCards(array) {
   array.forEach(function (cardContent) {
     const newCard = createCard(
       cardContent,
       deleteCard,
       likeCard,
-      openImagePopup
+      openImagePopup,
+      currentUserId
     );
     cardsContainer.append(newCard);
   });
 }
 
-addCards(initialCards);
+function loadCards() {
+  getCards()
+    .then((cards) => {
+      addCards(cards);
+    })
+    .catch((error) => {
+      console.error("Ошибка при загрузке карточек:", error);
+    });
+}
+
+function loadUserData() {
+  getUser()
+    .then((userData) => {
+      currentUserId = userData._id;
+      profileTitle.textContent = userData.name;
+      profileDescription.textContent = userData.about;
+
+      if (userData.avatar) {
+        const profileImageElement = document.querySelector(".profile__image");
+        profileImageElement.style.backgroundImage = `url(${userData.avatar})`;
+      }
+    })
+    .catch((error) => {
+      console.error("Ошибка при загрузке данных пользователя:", error);
+    });
+}
+
+loadUserData();
+loadCards();
 
 function openImagePopup(event) {
   openPopup(imagePopup);
@@ -77,10 +116,24 @@ function handleProfileFormSubmit(evt) {
   const currentName = nameInput.value;
   const currentJob = jobInput.value;
 
-  profileTitle.textContent = currentName;
-  profileDescription.textContent = currentJob;
+  const submitButton = evt.target.querySelector(".popup__button");
+  const originalText = submitButton.textContent;
+  submitButton.textContent = "Сохранение...";
+  submitButton.disabled = true;
 
-  closePopup(editPopup);
+  patchUser(currentName, currentJob)
+    .then((userData) => {
+      profileTitle.textContent = userData.name;
+      profileDescription.textContent = userData.about;
+      closePopup(editPopup);
+    })
+    .catch((error) => {
+      console.error("Ошибка при обновлении профиля:", error);
+    })
+    .finally(() => {
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
+    });
 }
 
 editForm.addEventListener("submit", handleProfileFormSubmit);
@@ -93,20 +146,36 @@ function handleCardFormSubmit(evt) {
     name: cardNameInput.value,
   };
 
-  const newCard = createCard(cardContent, deleteCard, likeCard, openImagePopup);
-  cardsContainer.prepend(newCard);
+  const submitButton = evt.target.querySelector(".popup__button");
+  const originalText = submitButton.textContent;
+  submitButton.textContent = "Создание...";
+  submitButton.disabled = true;
 
-  closePopup(newCardPopup);
-  evt.target.reset();
+  postCard(cardContent.name, cardContent.link)
+    .then((newCardData) => {
+      const newCard = createCard(
+        newCardData,
+        deleteCard,
+        likeCard,
+        openImagePopup,
+        currentUserId
+      );
+      cardsContainer.prepend(newCard);
+      closePopup(newCardPopup);
+      evt.target.reset();
+    })
+    .catch((error) => {
+      console.error("Ошибка при создании карточки:", error);
+    })
+    .finally(() => {
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
+    });
 }
 
 newCardForm.addEventListener("submit", handleCardFormSubmit);
 
 validation(validationConfig);
-
-export { createCard, deleteCard, likeCard };
-export { openPopup, closePopup, closePopupEvent };
-export { initialCards };
 
 const profileImageElement = document.querySelector(".profile__image");
 if (profileImageElement && avatarUrl) {

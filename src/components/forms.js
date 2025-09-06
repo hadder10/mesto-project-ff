@@ -15,7 +15,7 @@ import {
 
 import { patchAvatar, deleteCardApi, postCard, patchUser } from "./api.js";
 
-import { openPopup, closePopup } from "./modal.js";
+import { openPopup, closePopup } from "./popup.js";
 
 import { createCard } from "../card.js";
 import { handleSubmit } from "./utilsForms.js";

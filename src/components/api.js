@@ -11,11 +11,6 @@ const headers = {
   "Content-Type": "application/json",
 };
 
-// const headers = {
-//   Authorization: `Bearer ${process.env.API_TOKEN || ""}`,
-//   "Content-Type": "application/json",
-// };
-
 const checkData = (response) => {
   if (response.ok) {
     return response.json();
