@@ -83,6 +83,11 @@ const enableValidation = (validationConfig) => {
 };
 
 function clearValidation(formElement, validationConfig) {
+  if (!formElement) {
+    console.warn("clearValidation: formElement is null");
+    return;
+  }
+
   const inputList = Array.from(
     formElement.querySelectorAll(validationConfig.inputSelector)
   );
@@ -93,7 +98,10 @@ function clearValidation(formElement, validationConfig) {
   inputList.forEach((inputElement) =>
     hideInputError(formElement, inputElement, validationConfig)
   );
-  toggleButtonState(inputList, validationConfig, buttonElementReturn);
+
+  if (buttonElementReturn) {
+    toggleButtonState(inputList, validationConfig, buttonElementReturn);
+  }
 }
 
 export { enableValidation as validation, clearValidation };

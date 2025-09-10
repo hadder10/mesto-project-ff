@@ -26,12 +26,14 @@ function handleCloseButtonClick(evt) {
 function openPopup(popup) {
   popup.classList.add("popup_is-opened");
   document.addEventListener("keydown", handleEscClick);
+  popup.addEventListener("click", handleOverlayClick);
 }
 
 function closePopup(popup) {
   if (popup) {
     popup.classList.remove("popup_is-opened");
     document.removeEventListener("keydown", handleEscClick);
+    popup.removeEventListener("click", handleOverlayClick);
   }
 }
 

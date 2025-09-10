@@ -1,7 +1,7 @@
 export const editFormElement = document.forms["edit-profile"];
 export const newPlaceFormElement = document.forms["new-place"];
-export const avatarFormElement = document.forms["edit-avatar"];
-export const deleteCardForm = document.forms["delete-card"];
+export const avatarFormElement = document.forms["edit-avatar"] || null;
+export const deleteCardForm = document.forms["delete-card"] || null;
 
 export const buttonTypeCard = document.querySelector(".popup_type_image");
 export const profileEditButton = document.querySelector(
@@ -12,8 +12,9 @@ export const profileAddButton = document.querySelector(".profile__add-button");
 export const popupsArray = Array.from(document.querySelectorAll(".popup"));
 export const editForm = document.querySelector(".popup_type_edit");
 export const newCardForm = document.querySelector(".popup_type_new-card");
-export const avatarForm = document.querySelector(".popup_type_avatar");
-export const deletePopup = document.querySelector(".popup_type_delete-card");
+export const avatarForm = document.querySelector(".popup_type_avatar") || null;
+export const deletePopup =
+  document.querySelector(".popup_type_delete-card") || null;
 
 export const placesList = document.querySelector(".places__list");
 
