@@ -12,24 +12,15 @@ const headers = {
 };
 
 const checkData = (response) => {
-  console.log("API Response status:", response.status, response.statusText);
   if (response.ok) {
     return response.json();
   } else {
-    console.error("API Error:", response.status, response.statusText);
     return Promise.reject(`Error: ${response.status}`);
   }
 };
 
 function request(endpoint, options) {
-  const url = `${BASE_URL}/${endpoint}`;
-  console.log("Making API request to:", url, "with options:", options);
-  return fetch(url, options)
-    .then(checkData)
-    .catch((error) => {
-      console.error("Network error:", error);
-      throw error;
-    });
+  return fetch(`${BASE_URL}/${endpoint}`, options).then(checkData);
 }
 
 const getCards = () => {

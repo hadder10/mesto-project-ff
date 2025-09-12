@@ -10,8 +10,10 @@ export const validationConfig = {
 const showInputError = (formElement, inputElement, validationConfig) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   inputElement.classList.add(validationConfig.inputErrorClass);
-  errorElement.textContent = inputElement.validationMessage;
-  errorElement.classList.add(validationConfig.errorClass);
+  if (errorElement) {
+    errorElement.textContent = inputElement.validationMessage;
+    errorElement.classList.add(validationConfig.errorClass);
+  }
 };
 
 const hideInputError = (formElement, inputElement, validationConfig) => {
@@ -51,7 +53,7 @@ const toggleButtonState = (
     buttonElementReturn.setAttribute("disabled", true);
     buttonElementReturn.classList.add(validationConfig.inactiveButtonClass);
   } else {
-    buttonElementReturn.removeAttribute("disabled", false);
+    buttonElementReturn.removeAttribute("disabled");
     buttonElementReturn.classList.remove(validationConfig.inactiveButtonClass);
   }
 };
@@ -63,6 +65,8 @@ const setEventListeners = (formElement, validationConfig) => {
   const buttonElement = formElement.querySelector(
     validationConfig.submitButtonSelector
   );
+
+  toggleButtonState(inputList, validationConfig, buttonElement);
 
   inputList.forEach((inputElement) => {
     inputElement.addEventListener("input", function () {
@@ -83,11 +87,6 @@ const enableValidation = (validationConfig) => {
 };
 
 function clearValidation(formElement, validationConfig) {
-  if (!formElement) {
-    console.warn("clearValidation: formElement is null");
-    return;
-  }
-
   const inputList = Array.from(
     formElement.querySelectorAll(validationConfig.inputSelector)
   );
@@ -98,10 +97,7 @@ function clearValidation(formElement, validationConfig) {
   inputList.forEach((inputElement) =>
     hideInputError(formElement, inputElement, validationConfig)
   );
-
-  if (buttonElementReturn) {
-    toggleButtonState(inputList, validationConfig, buttonElementReturn);
-  }
+  toggleButtonState(inputList, validationConfig, buttonElementReturn);
 }
 
 export { enableValidation as validation, clearValidation };

@@ -1,4 +1,24 @@
+import { deletePopup } from "./const.js";
 import { deleteCardApi, addLikeCard, deleteLikeCard } from "./api.js";
+import { openPopup, closePopup } from "./popup.js";
+
+let selectedCard;
+let deleteId;
+
+export const openPopupDelete = (cardElement, cardId) => {
+  selectedCard = cardElement;
+  deleteId = cardId;
+  openPopup(deletePopup);
+};
+
+const closePopupDelete = () => {
+  closePopup(deletePopup);
+};
+
+export function handleCardDelete(evt) {
+  evt.preventDefault();
+  deleteCard();
+}
 
 const cardTemplate = document.querySelector("#card-template").content;
 
