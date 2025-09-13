@@ -1,17 +1,28 @@
 export const validationConfig = {
-  formSelector: ".popup__form",
-  inputSelector: ".popup__input",
-  submitButtonSelector: ".button",
-  inactiveButtonClass: "button_inactive",
-  inputErrorClass: "form__input_type_error",
-  errorClass: "form__input-error_active",
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'form__input-error_active'
 };
 
 const showInputError = (formElement, inputElement, validationConfig) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   inputElement.classList.add(validationConfig.inputErrorClass);
+  
+  let errorMessage = inputElement.validationMessage;
+  
+  if (inputElement.validity.patternMismatch) {
+    errorMessage = inputElement.dataset.errorMessage;
+  } else if (inputElement.validity.tooShort || inputElement.validity.tooLong) {
+    errorMessage = `Текст должен быть от ${inputElement.minLength} до ${inputElement.maxLength} символов`;
+  } else if (inputElement.validity.valueMissing) {
+    errorMessage = 'Это обязательное поле';
+  }
+
   if (errorElement) {
-    errorElement.textContent = inputElement.validationMessage;
+    errorElement.textContent = errorMessage;
     errorElement.classList.add(validationConfig.errorClass);
   }
 };
@@ -21,20 +32,15 @@ const hideInputError = (formElement, inputElement, validationConfig) => {
   if (errorElement) {
     inputElement.classList.remove(validationConfig.inputErrorClass);
     errorElement.classList.remove(validationConfig.errorClass);
-    errorElement.textContent = "";
+    errorElement.textContent = '';
   }
 };
 
 const checkInputValidity = (formElement, inputElement, validationConfig) => {
-  if (inputElement.validity.patternMismatch) {
-    inputElement.setCustomValidity(inputElement.dataset.error);
-  } else {
-    inputElement.setCustomValidity("");
-  }
-  if (!inputElement.validity.valid) {
-    showInputError(formElement, inputElement, validationConfig);
-  } else {
+  if (inputElement.validity.valid) {
     hideInputError(formElement, inputElement, validationConfig);
+  } else {
+    showInputError(formElement, inputElement, validationConfig);
   }
 };
 
@@ -44,17 +50,20 @@ const hasInvalidInput = (inputList) => {
   });
 };
 
-const toggleButtonState = (
-  inputList,
-  validationConfig,
-  buttonElementReturn
-) => {
+const toggleButtonState = (inputList, validationConfig, formElement) => {
+  const buttonElement = formElement.querySelector(validationConfig.submitButtonSelector);
+
+  if (!buttonElement) {
+    console.error('Submit button not found in form');
+    return;
+  }
+
   if (hasInvalidInput(inputList)) {
-    buttonElementReturn.setAttribute("disabled", true);
-    buttonElementReturn.classList.add(validationConfig.inactiveButtonClass);
+    buttonElement.setAttribute('disabled', true);
+    buttonElement.classList.add(validationConfig.inactiveButtonClass);
   } else {
-    buttonElementReturn.removeAttribute("disabled");
-    buttonElementReturn.classList.remove(validationConfig.inactiveButtonClass);
+    buttonElement.removeAttribute('disabled');
+    buttonElement.classList.remove(validationConfig.inactiveButtonClass);
   }
 };
 
@@ -62,16 +71,13 @@ const setEventListeners = (formElement, validationConfig) => {
   const inputList = Array.from(
     formElement.querySelectorAll(validationConfig.inputSelector)
   );
-  const buttonElement = formElement.querySelector(
-    validationConfig.submitButtonSelector
-  );
 
-  toggleButtonState(inputList, validationConfig, buttonElement);
+  toggleButtonState(inputList, validationConfig, formElement);
 
   inputList.forEach((inputElement) => {
-    inputElement.addEventListener("input", function () {
+    inputElement.addEventListener('input', function () {
       checkInputValidity(formElement, inputElement, validationConfig);
-      toggleButtonState(inputList, validationConfig, buttonElement);
+      toggleButtonState(inputList, validationConfig, formElement);
     });
   });
 };

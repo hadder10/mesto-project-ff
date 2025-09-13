@@ -1,5 +1,5 @@
 import "./pages/index.css";
-// api.js
+
 import {
   getCards,
   postCard,
@@ -11,13 +11,10 @@ import {
   deleteLikeCard,
 } from "./components/api.js";
 
-// card.js
 import { createCard, deleteCard, likeCard } from "./components/card.js";
 
-// const.js
 import {
   avatarFormElement,
-  avatarImage,
   avatarForm,
   nameInput,
   jobInput,
@@ -27,12 +24,12 @@ import {
   newPlaceNameInput,
   newLinkInput,
   placesList,
+  deleteCardPopup,
+  deleteCardForm,
 } from "./components/const.js";
 
-// popup.js
 import { openPopup, closePopup, closePopupEvent } from "./components/popup.js";
 
-// validation.js
 import {
   validation,
   clearValidation,
@@ -49,7 +46,6 @@ const profileDescription = document.querySelector(".profile__description");
 const editForm = document.forms["edit-profile"];
 const nameInput_index = editForm.elements.name;
 const jobInput_index = editForm.elements.description;
-
 const newCardForm_index = document.forms["new-place"];
 const cardLinkInput = newCardForm_index.elements.link;
 const cardNameInput = newCardForm_index.elements["place-name"];
@@ -64,6 +60,16 @@ const imagePopup = document.querySelector(".popup_type_image");
 const editProfileButton = document.querySelector(".profile__edit-button");
 const addCardButton = document.querySelector(".profile__add-button");
 const closePopupButtons = document.querySelectorAll(".popup__close");
+
+//
+const formElementNewAvatar = document.forms["new-avatar"];
+const popupTypeNewAvatar = document.querySelector(".popup_type_new-avatar");
+const avatarImage = document.querySelector(".profile__image");
+
+avatarImage.addEventListener("click", () => {
+  openPopup(popupTypeNewAvatar);
+  clearValidation(formElementNewAvatar, validationConfig);
+});
 
 let currentUserId = null;
 
@@ -219,7 +225,7 @@ function renderLoading(
   }
 }
 
-export function handleSubmit(request, evt, loadingText = "Сохранение...") {
+function handleSubmit(request, evt, loadingText = "Сохранение...") {
   evt.preventDefault();
 
   const submitButton = evt.submitter;
@@ -238,26 +244,25 @@ export function handleSubmit(request, evt, loadingText = "Сохранение..
     });
 }
 
-export function handleAvatarFormSubmit(event) {
+function handleAvatarFormSubmit(event) {
   function makeRequest() {
-    const avatar = avatarFormElement.elements["avatar-link"].value;
+    const avatar = formElementNewAvatar.elements["avatar-input"].value;
     return patchAvatar(avatar).then((res) => {
-      avatarImage.setAttribute(
-        "style",
-        `background-image: url('${res.avatar}')`
-      );
-      closePopup(avatarForm);
+      avatarImage.style.backgroundImage = `url('${res.avatar}')`;
+      closePopup(popupTypeNewAvatar);
     });
   }
   handleSubmit(makeRequest, event);
 }
 
-export function setInitialEditProfileFormValues() {
+formElementNewAvatar.addEventListener("submit", handleAvatarFormSubmit);
+
+function setInitialEditProfileFormValues() {
   nameInput.value = userNameElement.textContent;
   jobInput.value = userJobElement.textContent;
 }
 
-export function handleFormSubmit(evt) {
+function handleFormSubmit(evt) {
   function makeRequest() {
     const name = nameInput.value;
     const about = jobInput.value;
@@ -271,7 +276,7 @@ export function handleFormSubmit(evt) {
   handleSubmit(makeRequest, evt);
 }
 
-export function handleNewCardFormSubmit(event, callbacksObject, userId) {
+function handleNewCardFormSubmit(event, callbacksObject, userId) {
   function makeRequest() {
     return postCard(newPlaceNameInput.value, newLinkInput.value).then(
       (card) => {
@@ -284,3 +289,44 @@ export function handleNewCardFormSubmit(event, callbacksObject, userId) {
 
   handleSubmit(makeRequest, event);
 }
+
+function handleDeleteSubmit(evt) {
+  evt.preventDefault();
+  const submitButton = evt.submitter;
+  const initialText = submitButton.textContent;
+  submitButton.textContent = 'Удаление...';
+  
+  const cardId = deleteCardPopup.dataset.cardId;
+  const cardElementId = deleteCardPopup.dataset.cardElementId;
+  const cardElement = document.querySelector(`.card[data-card-id="${cardElementId}"]`);
+
+  if (!cardElement) {
+    console.error('Card element not found');
+    return;
+  }
+
+  deleteCardApi(cardId)
+    .then(() => {
+      cardElement.remove(); 
+      closePopup(deleteCardPopup);
+    })
+    .catch((err) => {
+      console.error('Ошибка при удалении карточки:', err);
+    })
+    .finally(() => {
+      submitButton.textContent = initialText;
+      // Очищаем data-атрибуты
+      delete deleteCardPopup.dataset.cardId;
+      delete deleteCardPopup.dataset.cardElementId;
+    });
+}
+
+deleteCardForm.addEventListener('submit', handleDeleteSubmit);
+
+export {
+  handleSubmit,
+  handleAvatarFormSubmit,
+  setInitialEditProfileFormValues,
+  handleFormSubmit,
+  handleNewCardFormSubmit,
+};

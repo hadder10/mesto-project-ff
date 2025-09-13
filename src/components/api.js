@@ -14,9 +14,8 @@ const headers = {
 const checkData = (response) => {
   if (response.ok) {
     return response.json();
-  } else {
-    return Promise.reject(`Error: ${response.status}`);
   }
+  return Promise.reject(`Ошибка: ${response.status}`);
 };
 
 function request(endpoint, options) {

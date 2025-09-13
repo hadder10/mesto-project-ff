@@ -1,7 +1,6 @@
 const editFormElement = document.forms["edit-profile"];
 const newPlaceFormElement = document.forms["new-place"];
 const avatarFormElement = document.forms["edit-avatar"];
-const deleteCardForm = document.forms["delete-card"];
 
 const buttonTypeCard = document.querySelector(".popup_type_image");
 const profileEditButton = document.querySelector(".profile__edit-button");
@@ -11,7 +10,8 @@ const popupsArray = Array.from(document.querySelectorAll(".popup"));
 const editForm = document.querySelector(".popup_type_edit");
 const newCardForm = document.querySelector(".popup_type_new-card");
 const avatarForm = document.querySelector(".popup_type_avatar");
-const deletePopup = document.querySelector(".popup_type_delete-card");
+export const deleteCardPopup = document.querySelector('.popup_type_delete-card');
+export const deleteCardForm = document.forms['delete-card'];
 
 const placesList = document.querySelector(".places__list");
 
@@ -32,7 +32,6 @@ export {
   editFormElement,
   newPlaceFormElement,
   avatarFormElement,
-  deleteCardForm,
   buttonTypeCard,
   profileEditButton,
   profileAddButton,
@@ -40,7 +39,6 @@ export {
   editForm,
   newCardForm,
   avatarForm,
-  deletePopup,
   placesList,
   avatarImage,
   nameInput,
