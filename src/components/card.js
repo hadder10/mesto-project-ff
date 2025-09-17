@@ -5,7 +5,7 @@ import { openPopup, closePopup } from "./popup.js";
 let selectedCard;
 let deleteId;
 
-export const openPopupDelete = (cardElement, cardId) => {
+const openPopupDelete = (cardElement, cardId) => {
   selectedCard = cardElement;
   deleteId = cardId;
   openPopup(deleteCardPopup);
@@ -15,32 +15,24 @@ const closePopupDelete = () => {
   closePopup(deleteCardPopup);
 };
 
-export function handleCardDelete(evt) {
+function handleCardDelete(evt) {
   evt.preventDefault();
   deleteCard();
 }
 
 const cardTemplate = document.querySelector("#card-template").content;
 
-export function createCard(
-  cardData,
-  deleteCallback,
-  likeCallback,
-  openImageCallback,
-  userId
-) {
+function createCard(cardData, callbacks, userId) {
   const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
-  cardElement.dataset.cardId = cardData._id;
-
   const cardImage = cardElement.querySelector(".card__image");
-  const cardTitle = cardElement.querySelector(".card__title");
   const deleteButton = cardElement.querySelector(".card__delete-button");
   const likeButton = cardElement.querySelector(".card__like-button");
-  const likeCount = cardElement.querySelector(".card__like-count");
+  const likeCountElement = cardElement.querySelector(".card__like-count");
 
+  cardElement.dataset.cardId = cardData._id;
   cardImage.src = cardData.link;
   cardImage.alt = cardData.name;
-  cardTitle.textContent = cardData.name;
+  cardElement.querySelector(".card__title").textContent = cardData.name;
 
   if (cardData.owner && cardData.owner._id !== userId) {
     deleteButton.style.display = "none";
@@ -50,19 +42,25 @@ export function createCard(
     likeButton.classList.add("card__like-button_is-active");
   }
 
-  if (likeCount) {
-    likeCount.textContent = cardData.likes ? cardData.likes.length : 0;
+  if (likeCountElement) {
+    likeCountElement.textContent = cardData.likes ? cardData.likes.length : 0;
   }
 
-  deleteButton.addEventListener("click", () => {
-    openPopup(deleteCardPopup);
-    deleteCardPopup.dataset.cardId = cardData._id;
-    deleteCardPopup.dataset.cardElementId = cardElement.dataset.cardId;
-  });
-  likeButton.addEventListener("click", () =>
-    likeCallback(cardData._id, likeButton, likeCount)
-  );
-  cardImage.addEventListener("click", openImageCallback);
+  if (callbacks.deleteCard) {
+    deleteButton.addEventListener("click", () =>
+      callbacks.deleteCard(cardData._id, cardElement)
+    );
+  }
+
+  if (callbacks.likeCard) {
+    likeButton.addEventListener("click", () =>
+      callbacks.likeCard(cardData._id, likeButton, likeCountElement)
+    );
+  }
+
+  if (callbacks.openImagePopup) {
+    cardImage.addEventListener("click", callbacks.openImagePopup);
+  }
 
   return cardElement;
 }
@@ -96,4 +94,44 @@ function likeCard(cardId, likeButton, likeCountElement) {
     });
 }
 
-export { deleteCard, likeCard };
+function renderLoading(
+  isLoading,
+  button,
+  initialText = "Сохранить",
+  loadingText = "Сохранение"
+) {
+  if (isLoading) {
+    button.textContent = loadingText;
+  } else {
+    button.textContent = initialText;
+  }
+}
+
+function handleSubmit(request, evt, loadingText = "Сохранение...") {
+  evt.preventDefault();
+
+  const submitButton = evt.submitter;
+  const initialText = submitButton.textContent;
+  renderLoading(true, submitButton, initialText, loadingText);
+
+  return request()
+    .then(() => {
+      evt.target.reset();
+    })
+    .catch((err) => {
+      console.error(`Ошибка: ${err}`);
+    })
+    .finally(() => {
+      renderLoading(false, submitButton, initialText, loadingText);
+    });
+}
+
+export {
+  deleteCard,
+  likeCard,
+  renderLoading,
+  handleSubmit,
+  createCard,
+  handleCardDelete,
+  openPopupDelete,
+};

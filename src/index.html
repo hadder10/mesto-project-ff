@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
   <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
-    />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="<%=require('./images/logo.svg')%>" type="image/svg+xml">
     <title>Mesto</title>
   </head>
   <body class="page">
@@ -110,6 +107,8 @@
               name="place-name"
               class="popup__input popup__input_type_card-name"
               placeholder="Название"
+              minlength="2"
+              maxlength="200"
               required
             />
             <span class="place-name-error form__input-error"></span>
@@ -141,9 +140,8 @@
       </div>
       <div class="popup popup_type_new-avatar popup_is-animated">
         <div class="popup__content">
-          <button type="button" class="popup__close"></button>
-          <h3 class="popup__title">Обновить аватар</h3>
-          <form class="popup__form" name="new-avatar" novalidate>
+          <form class="popup__form" name="edit-avatar" novalidate>
+            <h3 class="popup__title">Обновить аватар</h3>
             <input
               id="avatar-input"
               type="url"
@@ -155,6 +153,7 @@
             <span class="form__input-error avatar-input-error"></span>
             <button type="submit" class="popup__button">Сохранить</button>
           </form>
+          <button type="button" class="popup__close"></button>
         </div>
       </div>
       <div class="popup popup_type_delete-card popup_is-animated">

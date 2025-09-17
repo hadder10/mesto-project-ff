@@ -28,6 +28,11 @@
   transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
+.button_inactive:hover {
+  background-color: #bdbdbd;
+  cursor: not-allowed;
+}
+
 @media screen and (max-width: 568px) {
   .popup__button {
     font-size: 14px;
