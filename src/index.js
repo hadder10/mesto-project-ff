@@ -11,7 +11,9 @@ import {
   deleteLikeCard,
 } from "./components/api.js";
 
-import { createCard, deleteCard, likeCard, renderLoading, handleSubmit } from "./components/card.js";
+import { createCard, deleteCard, likeCard } from "./components/card.js";
+
+import { renderLoading, handleSubmit } from "./components/utils.js";
 
 import {
   buttonTypeCard,
