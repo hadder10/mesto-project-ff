@@ -9,5 +9,3 @@ https://github.com/Eioven/mesto-project-ff
 
 <h3>Технологии</h3>
 HTML, CSS, JavaScript.
-
-

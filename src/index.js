@@ -1,99 +1,300 @@
-import './pages/index.css';
+import "./pages/index.css";
+
+import {
+  getCards,
+  postCard,
+  patchAvatar,
+  deleteCardApi,
+  getUser,
+  patchUser,
+  addLikeCard,
+  deleteLikeCard,
+} from "./components/api.js";
+
 import { createCard, deleteCard, likeCard } from "./components/card.js";
+
+import { renderLoading, handleSubmit } from "./components/utils.js";
+
+import {
+  buttonTypeCard,
+  avatarFormElement,
+  avatarForm,
+  nameInput,
+  jobInput,
+  userJobElement,
+  userNameElement,
+  newPlaceFormElement,
+  newPlaceNameInput,
+  newLinkInput,
+  newCardForm,
+  placesList,
+  deleteCardPopup,
+  deleteCardForm,
+  editFormElement,
+  popupImage,
+  popupImageCaption,
+  editForm,
+  profileEditButton,
+  profileAddButton,
+  avatarImage,
+  popupsArray
+} from "./components/const.js";
+
 import { openPopup, closePopup, closePopupEvent } from "./components/popup.js";
-import {initialCards} from "./components/cards.js";
 
-const cardsContainer = document.querySelector(".places__list");
+import { validation, clearValidation, validationConfig } from "./components/validation.js";
 
-const profileTitle = document.querySelector(".profile__title");
-const profileDescription = document.querySelector(".profile__description");
+import avatarUrl from "./images/avatar.jpg";
 
-const editForm = document.forms["edit-profile"];
-const nameInput = editForm.elements.name;
-const jobInput = editForm.elements.description;
 
-const newCardForm = document.forms["new-place"];
-const cardLinkInput = newCardForm.elements.link;
-const cardNameInput = newCardForm.elements["place-name"];
 
-const imagePopupImg = document.querySelector(".popup__image");
-const imagePopupDescription = document.querySelector(".popup__caption");
-
-const editPopup = document.querySelector(".popup_type_edit");
-const newCardPopup = document.querySelector(".popup_type_new-card");
-const imagePopup = document.querySelector(".popup_type_image");
-
-const editProfileButton  = document.querySelector(".profile__edit-button");
-const addCardButton = document.querySelector(".profile__add-button");
 const closePopupButtons = document.querySelectorAll(".popup__close");
 
-function addCards (array){
-    array.forEach(function (cardContent){
-        const newCard = createCard(cardContent, deleteCard, likeCard, openImagePopup);
-        cardsContainer.append(newCard);
+let currentUserId = null;
+let selectedCard;
+let id;
+
+if (avatarImage) {
+  avatarImage.addEventListener("click", () => {
+    openPopup(avatarForm);
+    clearValidation(avatarFormElement, validationConfig);
+  });
+} else {
+  console.error("Avatar image element not found");
+}
+
+function addCards(array) {
+  array.forEach(function (cardContent) {
+    const newCard = createCard(
+      cardContent,
+      deleteCard,
+      likeCard,
+      openImagePopup,
+      currentUserId
+    );
+    placesList.append(newCard);
+  });
+}
+
+function openImagePopup(event) {
+  openPopup(buttonTypeCard);
+  const card = event.target.closest(".card");
+  popupImage.src = card.querySelector(".card__image").src;
+  popupImage.alt = card.querySelector(".card__title").textContent;
+  popupImageCaption.textContent = card.querySelector(".card__title").textContent;
+}
+
+const openPopupDelete = (cardElement, cardId) => {
+  selectedCard = cardElement;
+  id = cardId;
+  deleteCardPopup.dataset.cardId = cardId;
+  cardElement.dataset.cardId = cardId;
+
+  openPopup(deleteCardPopup);
+};
+
+const callbacksObject = {
+  deleteCard: (cardId, cardElement) => openPopupDelete(cardElement, cardId),
+  likeCard: likeCard,
+  openImagePopup: openImagePopup,
+};
+
+function initialLoading() {
+  Promise.all([getUser(), getCards()])
+    .then(([userData, cards]) => {
+      currentUserId = userData._id;
+      userNameElement.textContent = userData.name;
+      userJobElement.textContent = userData.about;
+      if (userData.avatar) {
+        avatarImage.style.backgroundImage = `url(${userData.avatar})`;
+      }
+
+      cards.forEach((cardContent) => {
+        const newCard = createCard(cardContent, callbacksObject, currentUserId);
+        placesList.append(newCard);
+      });
+    })
+    .catch((err) => {
+      console.error('Ошибка при загрузке данных:', err);
     });
 }
 
-addCards(initialCards);
-
-function openImagePopup(event) {
-    openPopup(imagePopup);
-    const card = event.target.closest(".card");
-
-    imagePopupImg.src = card.querySelector(".card__image").src;
-    imagePopupImg.alt = card.querySelector(".card__title").textContent;
-    imagePopupDescription.textContent = card.querySelector(".card__title").textContent;
-}
+initialLoading();
 
 closePopupButtons.forEach((button) => {
-    button.addEventListener("click", closePopupEvent);
+  button.addEventListener("click", closePopupEvent);
 });
 
-editProfileButton.addEventListener("click",() => {
-    nameInput.value = profileTitle.textContent;
-    jobInput.value = profileDescription.textContent;
-    openPopup(editPopup);
-});
+if (profileEditButton) {
+  profileEditButton.addEventListener("click", () => {
+    nameInput.value = userNameElement.textContent;
+    jobInput.value = userJobElement.textContent;
+    openPopup(editForm);
+    if (editFormElement) {
+      clearValidation(editFormElement, validationConfig);
+    }
+  });
+}
 
-addCardButton.addEventListener("click",() => {
-    openPopup(newCardPopup);
-});
+if (profileAddButton) {
+  profileAddButton.addEventListener("click", () => {
+    openPopup(newCardForm);
+    if (newPlaceFormElement) {
+      clearValidation(newPlaceFormElement, validationConfig);
+    }
+  });
+}
 
 function handleProfileFormSubmit(evt) {
-    evt.preventDefault();
+  evt.preventDefault();
 
-    const currentName = nameInput.value;
-    const currentJob = jobInput.value;
+  const currentName = nameInput.value;
+  const currentJob = jobInput.value;
 
-    profileTitle.textContent = currentName;
-    profileDescription.textContent = currentJob;
+  const submitButton = evt.target.querySelector(".popup__button");
+  const originalText = submitButton.textContent;
+  submitButton.textContent = "Сохранение...";
+  submitButton.disabled = true;
 
-    closePopup(editPopup);
+  patchUser(currentName, currentJob)
+    .then((userData) => {
+      userNameElement.textContent = userData.name;
+      userJobElement.textContent = userData.about;
+      closePopup(editForm);
+    })
+    .catch((error) => {
+      console.error("Ошибка при обновлении профиля:", error);
+    })
+    .finally(() => {
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
+    });
 }
 
-editForm.addEventListener('submit', handleProfileFormSubmit);
+editForm.addEventListener("submit", handleProfileFormSubmit);
 
 function handleCardFormSubmit(evt) {
-    evt.preventDefault();
+  evt.preventDefault();
 
-    const cardContent = {
-        link: cardLinkInput.value,
-        name: cardNameInput.value,
-    }
+  const cardContent = {
+    link: cardLinkInput.value,
+    name: cardNameInput.value,
+  };
 
-    const newCard = createCard(cardContent, deleteCard, likeCard, openImagePopup);
-    cardsContainer.prepend(newCard);
+  const submitButton = evt.target.querySelector(".popup__button");
+  const originalText = submitButton.textContent;
+  submitButton.textContent = "Создание...";
+  submitButton.disabled = true;
 
-    closePopup(newCardPopup);
-    evt.target.reset();
+  postCard(cardContent.name, cardContent.link)
+    .then((newCardData) => {
+      const newCard = createCard(
+        newCardData,
+        deleteCard,
+        likeCard,
+        openImagePopup,
+        currentUserId
+      );
+      placesList.prepend(newCard);
+      closePopup(newCardForm);
+      evt.target.reset();
+    })
+    .catch((error) => {
+      console.error("Ошибка при создании карточки:", error);
+    })
+    .finally(() => {
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
+    });
 }
 
-newCardForm.addEventListener('submit', handleCardFormSubmit);
+if (newPlaceFormElement) {
+  newPlaceFormElement.addEventListener("submit", (evt) => {
+    handleNewCardFormSubmit(evt, callbacksObject, currentUserId);
+  });
+}
 
+validation(validationConfig);
 
+const profileImageElement = document.querySelector(".profile__image");
+if (profileImageElement && avatarUrl) {
+  profileImageElement.style.backgroundImage = `url(${avatarUrl})`;
+}
 
+function handleAvatarFormSubmit(event) {
+  function makeRequest() {
+    const avatar = avatarFormElement.elements["avatar-input"].value;
+    return patchAvatar(avatar).then((res) => {
+      avatarImage.style.backgroundImage = `url('${res.avatar}')`;
+      closePopup(avatarForm);
+    });
+  }
+  handleSubmit(makeRequest, event);
+}
 
+if (avatarFormElement) {
+  avatarFormElement.addEventListener("submit", handleAvatarFormSubmit);
+} else {
+  console.error("Avatar form element not found");
+}
 
+function setInitialEditProfileFormValues() {
+  nameInput.value = userNameElement.textContent;
+  jobInput.value = userJobElement.textContent;
+}
 
+function handleFormSubmit(evt) {
+  function makeRequest() {
+    const name = nameInput.value;
+    const about = jobInput.value;
+    return patchUser(name, about).then((dataUser) => {
+      userNameElement.textContent = dataUser.name;
+      userJobElement.textContent = dataUser.about;
+      setInitialEditProfileFormValues();
+      closePopup(evt.target.closest(".popup_is-opened"));
+    });
+  }
+  handleSubmit(makeRequest, evt);
+}
 
+function handleNewCardFormSubmit(event, callbacksObject, userId) {
+  function makeRequest() {
+    return postCard(newPlaceNameInput.value, newLinkInput.value).then(
+      (card) => {
+        const newCardElement = createCard(card, callbacksObject, userId);
+        placesList.prepend(newCardElement);
+        closePopup(newCardForm);
+      }
+    );
+  }
 
+  handleSubmit(makeRequest, event);
+}
+
+function handleDeleteSubmit(evt) {
+  evt.preventDefault();
+  const submitButton = evt.submitter;
+  const initialText = submitButton.textContent;
+  submitButton.textContent = 'Удаление...';
+  
+  if (!selectedCard || !id) {
+    console.error('Данные карточки не найдены');
+    return;
+  }
+
+  deleteCardApi(id)
+    .then(() => {
+      selectedCard.remove();
+      closePopup(deleteCardPopup);
+    })
+    .catch((err) => {
+      console.error('Ошибка при удалении карточки:', err);
+    })
+    .finally(() => {
+      submitButton.textContent = initialText;
+      selectedCard = null;
+      id = null;
+    });
+}
+
+deleteCardForm.addEventListener('submit', handleDeleteSubmit);
